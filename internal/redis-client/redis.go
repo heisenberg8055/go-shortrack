@@ -1,4 +1,4 @@
-package redis
+package redis_client
 
 import (
 	"github.com/redis/go-redis/v9"

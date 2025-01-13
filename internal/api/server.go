@@ -7,13 +7,13 @@ import (
 	"github.com/heisenberg8055/gotiny/config"
 	"github.com/heisenberg8055/gotiny/internal/api/routes"
 	"github.com/heisenberg8055/gotiny/internal/postgres"
-	"github.com/heisenberg8055/gotiny/internal/redis"
+	redis_client "github.com/heisenberg8055/gotiny/internal/redis-client"
 )
 
 func StartServer() {
 	env := config.LoadConfig()
 	postClient := postgres.ConnectDB(&env)
-	redisClient := redis.ConnectCache(&env)
+	redisClient := redis_client.ConnectCache(&env)
 	mux := routes.Routes(postClient, redisClient)
 	server := http.Server{
 		Addr:     ":8080",

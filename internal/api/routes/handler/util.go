@@ -3,9 +3,10 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"strconv"
 )
 
-func convertToBase62(number int) string {
+func convertToBase62(number int64) string {
 	const base62Digits = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	base62 := ""
 	for number > 0 {
@@ -16,8 +17,10 @@ func convertToBase62(number int) string {
 	return base62
 }
 
-func convertToMD5(longURL string) string {
+func convertToHash(longURL string) string {
 	hasher := md5.New()
 	hasher.Write([]byte(longURL))
-	return hex.EncodeToString(hasher.Sum(nil))[:8]
+	md5Hash := hex.EncodeToString(hasher.Sum(nil))[:12]
+	md5Int, _ := strconv.ParseInt(md5Hash, 16, 64)
+	return convertToBase62(md5Int)
 }

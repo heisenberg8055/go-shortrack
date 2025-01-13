@@ -9,7 +9,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/heisenberg8055/gotiny/internal/postgres"
+	redis_client "github.com/heisenberg8055/gotiny/internal/redis-client"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/redis/go-redis/v9"
 )
 
@@ -17,7 +19,7 @@ type InputURL struct {
 	LongURL string `json:"longurl"`
 }
 
-func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgx.Conn, redisClient *redis.Client) {
+func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client) {
 	if r.Method != "POST" {
 		http.Error(w, "Wrong Api Call Method", http.StatusMethodNotAllowed)
 		return
@@ -77,7 +79,29 @@ func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgx.Conn, redisC
 		}
 	}
 	if ok, err := validateURL(currURL.LongURL); ok {
-		fmt.Println(currURL.LongURL)
+		longUrl := currURL.LongURL
+		var shortURL string = ""
+		shortURL = redis_client.RedisGet(redisClient, longUrl)
+		if shortURL != "" {
+			w.Write([]byte(shortURL))
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+		shortURL = postgres.FetchShortUrl(postClient, longUrl)
+		if shortURL != "" {
+			redis_client.RedisSet(redisClient, longUrl, shortURL)
+			w.Write([]byte(shortURL))
+			w.WriteHeader(http.StatusNotModified)
+			return
+		}
+		for postgres.ValidateHash(postClient, shortURL) {
+			shortURL = convertToHash(longUrl)
+		}
+		redis_client.RedisSet(redisClient, longUrl, shortURL)
+		postgres.InsertData(postClient, longUrl, shortURL)
+		w.Write([]byte(shortURL))
+		w.WriteHeader(http.StatusCreated)
+		return
 	} else {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -85,7 +109,7 @@ func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgx.Conn, redisC
 }
 
 func GetURL(w http.ResponseWriter, r *http.Request) {
-	shortURL := r.PathValue("short-url")
+	shortURL := r.PathValue("shortUrl")
 	if shortURL == "" {
 		http.Error(w, "Wrong Request", http.StatusNotFound)
 		return

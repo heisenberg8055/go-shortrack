@@ -4,12 +4,12 @@ import (
 	"context"
 	"log"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectDB(config *map[string]string) *pgx.Conn {
+func ConnectDB(config *map[string]string) *pgxpool.Pool {
 	if dbURL, ok := (*config)["POSTGRES_URL"]; ok {
-		conn, err := pgx.Connect(context.Background(), dbURL)
+		conn, err := pgxpool.New(context.Background(), dbURL)
 		if err != nil {
 			log.Fatalf("Failed to connect DB: %v", err)
 		}
@@ -22,7 +22,7 @@ func ConnectDB(config *map[string]string) *pgx.Conn {
 	dbName := (*config)["POSTGRES_DATABASE"]
 	port := (*config)["POSTGRES_PORT"]
 	connString := "postgres://" + userName + ":" + passWord + "@" + hostName + ":" + port + "/" + dbName
-	conn, err := pgx.Connect(context.Background(), connString)
+	conn, err := pgxpool.New(context.Background(), connString)
 	if err != nil {
 		log.Fatalf("Failed to connect to DB: %s", err)
 	}
@@ -30,7 +30,7 @@ func ConnectDB(config *map[string]string) *pgx.Conn {
 	return conn
 }
 
-func initDB(conn *pgx.Conn) {
+func initDB(conn *pgxpool.Pool) {
 	tableCreate := `CREATE TABLE IF NOT EXISTS gotiny (
 		ID BIGSERIAL PRIMARY KEY,
 					  LONGURL TEXT NOT NULL,

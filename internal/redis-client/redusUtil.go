@@ -1,4 +1,4 @@
-package redis
+package redis_client
 
 import (
 	"context"
@@ -18,8 +18,7 @@ func RedisSet(client *redis.Client, longURL string, shortURL string) bool {
 
 func RedisGet(client *redis.Client, longURL string) string {
 	shortURL, err := client.Get(context.Background(), longURL).Result()
-	if err != nil {
-		log.Printf("Failed to fetch cache: %v", err)
+	if err == redis.Nil {
 		return ""
 	}
 	return shortURL

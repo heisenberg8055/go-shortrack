@@ -3,31 +3,50 @@ package postgres
 import (
 	"context"
 	"log"
+	"sync"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func ConnectDB(config *map[string]string) *pgxpool.Pool {
+type Postgres struct {
+	Db *pgxpool.Pool
+}
+
+var (
+	pgInstance *Postgres
+	pgOnce     sync.Once
+)
+
+func ConnectDB(config *map[string]string) (*Postgres, error) {
 	if dbURL, ok := (*config)["POSTGRES_URL"]; ok {
-		conn, err := pgxpool.New(context.Background(), dbURL)
-		if err != nil {
-			log.Fatalf("Failed to connect DB: %v", err)
-		}
-		initDB(conn)
-		return conn
+		pgOnce.Do(func() {
+			db, err := pgxpool.New(context.Background(), dbURL)
+			if err != nil {
+				log.Fatalf("Failed to connect to a connection pool: %s", err)
+				return
+			}
+			pgInstance = &Postgres{db}
+		})
+		initDB(pgInstance.Db)
+		return pgInstance, nil
+	} else {
+		userName := (*config)["POSTGRES_USER"]
+		passWord := (*config)["POSTGRES_PASSWORD"]
+		hostName := (*config)["POSTGRES_HOST"]
+		dbName := (*config)["POSTGRES_DATABASE"]
+		port := (*config)["POSTGRES_PORT"]
+		connString := "postgres://" + userName + ":" + passWord + "@" + hostName + ":" + port + "/" + dbName
+		pgOnce.Do(func() {
+			db, err := pgxpool.New(context.Background(), connString)
+			if err != nil {
+				log.Fatalf("Failed to connect to a connection pool: %s", err)
+				return
+			}
+			pgInstance = &Postgres{Db: db}
+		})
+		initDB(pgInstance.Db)
+		return pgInstance, nil
 	}
-	userName := (*config)["POSTGRES_USER"]
-	passWord := (*config)["POSTGRES_PASSWORD"]
-	hostName := (*config)["POSTGRES_HOST"]
-	dbName := (*config)["POSTGRES_DATABASE"]
-	port := (*config)["POSTGRES_PORT"]
-	connString := "postgres://" + userName + ":" + passWord + "@" + hostName + ":" + port + "/" + dbName
-	conn, err := pgxpool.New(context.Background(), connString)
-	if err != nil {
-		log.Fatalf("Failed to connect to DB: %s", err)
-	}
-	initDB(conn)
-	return conn
 }
 
 func initDB(conn *pgxpool.Pool) {
@@ -43,4 +62,12 @@ func initDB(conn *pgxpool.Pool) {
 		log.Fatalf("Relation unable to create: %s", err)
 	}
 	log.Println(res.String())
+}
+
+func (pg *Postgres) Ping() error {
+	return pg.Db.Ping(context.Background())
+}
+
+func (pg *Postgres) Close() {
+	pg.Db.Close()
 }

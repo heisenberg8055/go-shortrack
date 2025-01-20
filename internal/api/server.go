@@ -12,9 +12,9 @@ import (
 
 func StartServer() {
 	env := config.LoadConfig()
-	postClient := postgres.ConnectDB(&env)
+	postClient, _ := postgres.ConnectDB(&env)
 	redisClient := redis_client.ConnectCache(&env)
-	mux := routes.Routes(postClient, redisClient)
+	mux := routes.Routes(postClient.Db, redisClient)
 	server := http.Server{
 		Addr:     ":8080",
 		Handler:  mux,

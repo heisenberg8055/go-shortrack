@@ -8,7 +8,7 @@ import (
 )
 
 func RedisSet(client *redis.Client, longURL string, shortURL string) bool {
-	err := client.Set(context.Background(), longURL, shortURL, 0).Err()
+	err := client.Set(context.Background(), shortURL, longURL, 0).Err()
 	if err != nil {
 		log.Printf("Failed to update cache: %v", err)
 		return false
@@ -16,8 +16,8 @@ func RedisSet(client *redis.Client, longURL string, shortURL string) bool {
 	return true
 }
 
-func RedisGet(client *redis.Client, longURL string) string {
-	shortURL, err := client.Get(context.Background(), longURL).Result()
+func RedisGet(client *redis.Client, shortURL string) string {
+	shortURL, err := client.Get(context.Background(), shortURL).Result()
 	if err == redis.Nil {
 		return ""
 	}

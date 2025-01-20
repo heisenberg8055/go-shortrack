@@ -15,7 +15,9 @@ func Routes(postClient *pgxpool.Pool, redisClient *redis.Client) *http.ServeMux 
 		handlers.AddURL(w, r, postClient, redisClient)
 	})
 
-	router.HandleFunc("GET /{shortUrl}", handlers.GetURL)
+	router.HandleFunc("GET /{shortUrl}", func(w http.ResponseWriter, r *http.Request) {
+		handlers.GetURL(w, r, postClient, redisClient)
+	})
 
 	return router
 }

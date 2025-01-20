@@ -44,3 +44,23 @@ func FetchLongUrl(conn *pgxpool.Pool, shortURL string) string {
 	row.Scan(&longurl)
 	return longurl
 }
+
+func IncrementCount(conn *pgxpool.Pool, shortURL string) error {
+	incrementQuery := `UPDATE GOTINY SET COUNT = COUNT + 1 WHERE SHORTURL = $1`
+	_, err := conn.Exec(context.Background(), incrementQuery, shortURL)
+	if err != nil {
+		return fmt.Errorf("unable to update count: %w", err)
+	}
+	return nil
+}
+
+func GetCount(conn *pgxpool.Pool, shortURL string) int64 {
+	var count int64 = 0
+	query := `select count from gotiny where shorturl = $1`
+	response := conn.QueryRow(context.Background(), query, shortURL)
+	if err := response.Scan(&count); err == pgx.ErrNoRows {
+		return -1
+	}
+	response.Scan(&count)
+	return count
+}

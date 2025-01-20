@@ -23,6 +23,10 @@ type OutputURL struct {
 	ShortURL string `json:"longurl"`
 }
 
+type Count struct {
+	Urlcount int64 `json:"urlcount"`
+}
+
 func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client) {
 
 	// Method Check
@@ -121,11 +125,21 @@ func GetURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, re
 	longURL := ""
 	longURL = redis_client.RedisGet(redisClient, shortURL)
 	if longURL != "" {
+		err := postgres.IncrementCount(postClient, shortURL)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		http.Redirect(w, r, longURL, http.StatusMovedPermanently)
 		return
 	}
 	longURL = postgres.FetchLongUrl(postClient, shortURL)
 	if longURL != "" {
+		err := postgres.IncrementCount(postClient, shortURL)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 		http.Redirect(w, r, longURL, http.StatusMovedPermanently)
 		return
 	}
@@ -135,4 +149,19 @@ func GetURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, re
 func validateURL(longUrl string) (bool, error) {
 	_, err := url.ParseRequestURI(longUrl)
 	return err == nil, err
+}
+
+func GetCount(w http.ResponseWriter, r *http.Request, conn *pgxpool.Pool) {
+	shortURL := r.PathValue("shorturl")
+	count := postgres.GetCount(conn, shortURL)
+	fmt.Println(count)
+	if count == -1 {
+		http.Error(w, "Unknown URL", http.StatusBadRequest)
+		return
+	}
+	var response Count
+	w.Header().Set("Content-Type", "application/json")
+	response.Urlcount = count
+	data, _ := json.Marshal(response)
+	w.Write(data)
 }

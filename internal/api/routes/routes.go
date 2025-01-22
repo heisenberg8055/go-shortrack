@@ -11,7 +11,9 @@ import (
 func Routes(postClient *pgxpool.Pool, redisClient *redis.Client) *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("GET /{$}", handlers.Home)
+
+	router.HandleFunc("POST /", func(w http.ResponseWriter, r *http.Request) {
 		handlers.AddURL(w, r, postClient, redisClient)
 	})
 
@@ -19,11 +21,11 @@ func Routes(postClient *pgxpool.Pool, redisClient *redis.Client) *http.ServeMux 
 	// 	handlers.GetURL(w, r, postClient, redisClient)
 	// })
 
-	router.Handle("/", http.FileServer(http.Dir("static")))
+	// router.Handle("GET /static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 
-	router.HandleFunc("/count/{shorturl}", func(w http.ResponseWriter, r *http.Request) {
-		handlers.GetCount(w, r, postClient)
-	})
+	// router.HandleFunc("GET /count/{shorturl}", func(w http.ResponseWriter, r *http.Request) {
+	// 	handlers.GetCount(w, r, postClient)
+	// })
 
 	return router
 }

@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 
@@ -25,7 +26,7 @@ type Count struct {
 	Urlcount int64 `json:"urlcount"`
 }
 
-func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client) {
+func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Logger) {
 
 	// Method Check
 	if r.Method != "POST" {
@@ -63,7 +64,7 @@ func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, re
 	}
 }
 
-func GetURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client) {
+func GetURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Logger) {
 	shortURL := r.PathValue("shortUrl")
 	if shortURL == "" {
 		http.Error(w, "Wrong Request", http.StatusNotFound)
@@ -98,10 +99,9 @@ func validateURL(longUrl string) (bool, error) {
 	return err == nil, err
 }
 
-func GetCount(w http.ResponseWriter, r *http.Request, conn *pgxpool.Pool) {
+func GetCount(w http.ResponseWriter, r *http.Request, conn *pgxpool.Pool, logger *slog.Logger) {
 	shortURL := r.PathValue("shorturl")
 	count := postgres.GetCount(conn, shortURL)
-	fmt.Println(count)
 	if count == -1 {
 		http.Error(w, "Unknown URL", http.StatusBadRequest)
 		return
@@ -113,6 +113,6 @@ func GetCount(w http.ResponseWriter, r *http.Request, conn *pgxpool.Pool) {
 	w.Write(data)
 }
 
-func Home(w http.ResponseWriter, r *http.Request) {
+func Home(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
 	template.RenderHome(w)
 }

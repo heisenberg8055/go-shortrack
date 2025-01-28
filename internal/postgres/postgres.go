@@ -41,7 +41,7 @@ func initDB(conn *pgxpool.Pool) {
 	tableCreate := `CREATE TABLE IF NOT EXISTS gotiny (
 		ID BIGSERIAL PRIMARY KEY,
 					  LONGURL TEXT NOT NULL,
-								  SHORTURL VARCHAR(7) NOT NULL,
+								  SHORTURL TEXT NOT NULL,
 											  INSERT_AT TIMESTAMP NOT NULL DEFAULT NOW(),
 														  COUNT INTEGER NOT NULL DEFAULT 0
 																	);`

@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="UTF-8">
-	<title>Gotiny</title>
-	<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css'>
-	<link rel='stylesheet' href='https://unicons.iconscout.com/release/v2.1.9/css/unicons.css'>
-	<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Go Tiny</title>
+    <style>
 		@import url('https://fonts.googleapis.com/css?family=Poppins:400,500,600,700,800,900');
 
 		body {
@@ -317,6 +315,7 @@
 		input:invalid {
 			background-color: 1f2029;
 			border: none;
+			outline: 2px solid red;
 			border-radius: 5px;
 		}
 
@@ -411,78 +410,17 @@
 		}
 	</style>
 </head>
-{{$shortURL := .}}
 <body>
-	<div class="section">
-		<div class="container">
-			<div class="row full-height justify-content-center">
-				<div class="col-12 text-center align-self-center py-5">
-					<div class="section pb-5 pt-5 pt-sm-2 text-center">
-						<a href="/">
-							<h1 class="mb-0 pb-3">Gotiny</h1>
-						</a>
-						<input class="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
-						<label for="reg-log"></label>
-						<div class="card-3d-wrap mx-auto">
-							<div class="card-3d-wrapper">
-								<div class="card-front">
-									<div class="center-wrap">
-										<div class="section text-center">
-											<h4 class="mb-4 pb-3">URL Shortner</h4>
-											<div class="form-group">
-												{{if not $shortURL}}
-												<form method="post">
-													<input type="url" name="longurl" class="form-style"
-														placeholder="Long URL" id="longurl" autocomplete="off" required>
-													<i class="input-icon uil uil-link-h"></i>
-													<button class="btn mt-4" id="shorten" type="submit">Shorten</button>
-												</form>
-												{{else}}
-												<input type="text" name="shorturl" class="form-style"
-													value="{{$shortURL}}" id="shorturl">
-												<i class="input-icon uil uil-link-h"></i>
-												<button class="btn mt-4" id="shorten" onclick="copy()">copy</button>
-												<div class="mt-10 flex justify-center backhome">
-													<a href="/" class="text-sm font-semibold leading-7 text-a"><span
-															aria-hidden="true">←</span>Back to Home</a>
-												</div>
-												{{end}}
-											</div>
-										</div>
-									</div>
-								</div>
-								<div class="card-back">
-									<div class="center-wrap">
-										<div class="section text-center">
-											<h4 class="mb-4 pb-3">URL Tracker</h4>
-											<div class="form-group">
-												<form method="get" action="/count">
-													<input type="text" name="shorturl" class="form-style"
-														placeholder="Short URL" id="shorturl" autocomplete="off" required>
-													<i class="input-icon uil uil-link-h"></i>
-													<button class="btn mt-4" id="shorten" type="submit">Track</button>
-													
-												</form>
-											</div>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+    <div class="mx-auto max-w-7xl px-6 py-32 text-center sm:py-40 lg:px-8">
+        <p class="text-base font-semibold leading-8 text-white">404</p>
+        <h1 class="mt-4 text-3xl font-bold tracking-tight text-white sm:text-5xl">Page not found
+        </h1>
+        <p class="mt-4 text-base text-white/70 sm:mt-6">Sorry, we couldn’t find the page you’re
+            looking for.</p>
+        <div class="mt-10 flex justify-center">
+            <a href="/" class="text-sm font-semibold leading-7 text-white"><span
+                    aria-hidden="true">←</span> Back to home</a>
+        </div>
+    </div>
 </body>
-<script defer>
-	function copy() {
-		var copyText = document.getElementById("shorturl");
-		copyText.select()
-		navigator.clipboard.writeText(copyText.value);
-		document.getElementById("shorten").innerHTML = "copied!"
-		document.getElementById("shorten").disabled = true
-	}
-</script>
-
 </html>

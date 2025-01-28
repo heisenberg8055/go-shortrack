@@ -13,7 +13,7 @@ import (
 func Routes(postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Logger) *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /{$}", middleware.Middleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("GET /", middleware.Middleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.Home(w, r, logger)
 	}, logger))
 
@@ -25,7 +25,7 @@ func Routes(postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Lo
 		handlers.GetURL(w, r, postClient, redisClient, logger)
 	}, logger))
 
-	router.HandleFunc("GET /count/{shorturl}", middleware.Middleware(func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("GET /count", middleware.Middleware(func(w http.ResponseWriter, r *http.Request) {
 		handlers.GetCount(w, r, postClient, logger)
 	}, logger))
 

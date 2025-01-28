@@ -411,7 +411,6 @@
 		}
 	</style>
 </head>
-{{$shortURL := .}}
 <body>
 	<div class="section">
 		<div class="container">
@@ -421,7 +420,7 @@
 						<a href="/">
 							<h1 class="mb-0 pb-3">Gotiny</h1>
 						</a>
-						<input class="checkbox" type="checkbox" id="reg-log" name="reg-log"/>
+						<input class="checkbox" type="checkbox" id="reg-log" name="reg-log"  {{if .}} checked {{end}}/>
 						<label for="reg-log"></label>
 						<div class="card-3d-wrap mx-auto">
 							<div class="card-3d-wrapper">
@@ -430,23 +429,12 @@
 										<div class="section text-center">
 											<h4 class="mb-4 pb-3">URL Shortner</h4>
 											<div class="form-group">
-												{{if not $shortURL}}
 												<form method="post">
 													<input type="url" name="longurl" class="form-style"
 														placeholder="Long URL" id="longurl" autocomplete="off" required>
 													<i class="input-icon uil uil-link-h"></i>
 													<button class="btn mt-4" id="shorten" type="submit">Shorten</button>
 												</form>
-												{{else}}
-												<input type="text" name="shorturl" class="form-style"
-													value="{{$shortURL}}" id="shorturl">
-												<i class="input-icon uil uil-link-h"></i>
-												<button class="btn mt-4" id="shorten" onclick="copy()">copy</button>
-												<div class="mt-10 flex justify-center backhome">
-													<a href="/" class="text-sm font-semibold leading-7 text-a"><span
-															aria-hidden="true">←</span>Back to Home</a>
-												</div>
-												{{end}}
 											</div>
 										</div>
 									</div>
@@ -456,12 +444,15 @@
 										<div class="section text-center">
 											<h4 class="mb-4 pb-3">URL Tracker</h4>
 											<div class="form-group">
-												<form method="get" action="/count">
+												<form method="post" action="/count">
 													<input type="text" name="shorturl" class="form-style"
 														placeholder="Short URL" id="shorturl" autocomplete="off" required>
 													<i class="input-icon uil uil-link-h"></i>
-													<button class="btn mt-4" id="shorten" type="submit">Track</button>
-													
+													{{if .}}
+                                                    <button class="btn mt-4" id="shorten" type="submit" disabled>{{.}}</button>
+													{{else}}
+                                                    <button class="btn mt-4" id="shorten" type="submit">Track</button>
+                                                    {{end}}
 												</form>
 											</div>
 										</div>

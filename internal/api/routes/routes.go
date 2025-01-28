@@ -29,5 +29,7 @@ func Routes(postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Lo
 		handlers.GetCount(w, r, postClient, logger)
 	}, logger))
 
+	router.Handle("GET /healthz", &handlers.Health{})
+
 	return router
 }

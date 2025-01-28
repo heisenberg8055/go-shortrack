@@ -17,6 +17,8 @@ type InputURL struct {
 	LongURL string `json:"longurl"`
 }
 
+type Health struct{}
+
 func AddURL(w http.ResponseWriter, r *http.Request, postClient *pgxpool.Pool, redisClient *redis.Client, logger *slog.Logger) {
 
 	// Method Check
@@ -104,4 +106,8 @@ func GetCount(w http.ResponseWriter, r *http.Request, conn *pgxpool.Pool, logger
 
 func Home(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
 	template.RenderHome(w, r, logger)
+}
+
+func (h *Health) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("Working!"))
 }

@@ -13,9 +13,9 @@ import (
 )
 
 func StartServer() {
-	env := config.LoadConfig()
-	postClient, _ := postgres.ConnectDB(&env)
-	redisClient := redis_client.ConnectCache(&env)
+	config.LoadConfig()
+	postClient, _ := postgres.ConnectDB()
+	redisClient := redis_client.ConnectCache()
 	logger := log_middleware.NewLogger()
 	mux := routes.Routes(postClient.Db, redisClient, logger)
 

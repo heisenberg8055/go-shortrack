@@ -1,10 +1,14 @@
 package config
 
 import (
+	"log"
+
 	"github.com/joho/godotenv"
 )
 
-func LoadConfig() map[string]string {
-	config, _ := godotenv.Read(".env")
-	return config
+func LoadConfig() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading env variables: %s", err)
+	}
 }

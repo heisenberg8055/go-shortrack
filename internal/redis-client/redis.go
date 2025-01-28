@@ -1,15 +1,17 @@
 package redis_client
 
 import (
+	"os"
+
 	"github.com/redis/go-redis/v9"
 )
 
-func ConnectCache(config *map[string]string) *redis.Client {
+func ConnectCache() *redis.Client {
 
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     (*config)["REDIS_URL"],
-		Username: (*config)["REDIS_USERNAME"],
-		Password: (*config)["REDIS_PASSWORD"],
+		Addr:     os.Getenv("REDIS_URL"),
+		Username: os.Getenv("REDIS_USERNAME"),
+		Password: os.Getenv("REDIS_PASSWORD"),
 		DB:       0,
 	})
 

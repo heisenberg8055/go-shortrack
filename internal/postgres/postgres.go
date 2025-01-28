@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"log"
+	"os"
 	"sync"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,12 +18,12 @@ var (
 	pgOnce     sync.Once
 )
 
-func ConnectDB(config *map[string]string) (*Postgres, error) {
-	userName := (*config)["POSTGRES_USER"]
-	passWord := (*config)["POSTGRES_PASSWORD"]
-	hostName := (*config)["POSTGRES_HOST"]
-	dbName := (*config)["POSTGRES_DATABASE"]
-	port := (*config)["POSTGRES_PORT"]
+func ConnectDB() (*Postgres, error) {
+	userName := os.Getenv("POSTGRES_USER")
+	passWord := os.Getenv("POSTGRES_PASSWORD")
+	hostName := os.Getenv("POSTGRES_HOST")
+	dbName := os.Getenv("POSTGRES_DATABASE")
+	port := os.Getenv("POSTGRES_PORT")
 	connString := "postgres://" + userName + ":" + passWord + "@" + hostName + ":" + port + "/" + dbName
 	pgOnce.Do(func() {
 		db, err := pgxpool.New(context.Background(), connString)

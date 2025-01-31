@@ -109,5 +109,5 @@ func Home(w http.ResponseWriter, r *http.Request, logger *slog.Logger) {
 }
 
 func (h *Health) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Working!"))
+	w.WriteHeader(http.StatusOK)
 }
